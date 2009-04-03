@@ -23,7 +23,7 @@ class Pingdom
     creds.password = @password
 
     result = @driver.auth_login(@api_key, creds)
-    raise "Error logging into Pingdom.  Got status code #{result.status}." unless result.status == 0
+		check_result(result)
 
     # if we got this far, we logged in ok.
     @session = result.sessionId
@@ -38,8 +38,28 @@ class Pingdom
     request.resolution = Report_ResolutionEnum::DAILY
 
     result = @driver.report_getDowntimes(@api_key, session, request)
-    raise "Error retrieving downtime list.  Got status code #{result.status}." unless result.status == 0
+		check_result(result)
 
     return result.downtimesArray
   end
+
+	class PingdomException               < RuntimeError     ; end
+	class PingdomArgumentException       < PingdomException ; end
+	class PingdomInternalErrorException  < PingdomException ; end
+	class PingdomIdentifcationException  < PingdomException ; end
+	class PingdomAuthorizationException  < PingdomException ; end
+	class PingdomAuthenticationException < PingdomException ; end
+
+	def check_result(result)
+		case result.status
+		when 0: return
+		when 1: raise PingdomException(                "Something strange happened (1)")
+		when 2: raise PingdomException(                "Something strange happened (2)")
+		when 3: raise PingdomArgumentException(        "One or more arguments was invalid")
+		when 4: raise PingdomInternalErrorException(   "Pingdom reported an internal error")
+		when 5: raise PingdomIdenficationException(    "Wrong Identification: your API key is wrong")
+		when 6: raise PingdomAuthorizationException(   "Wrong Authorization: you don't have the privileges to call this function")
+		when 7: raise PingdomAuthenticationException(  "Wrong Authentication: your username or password is wrong.")
+		end
+	end
 end
