@@ -4,8 +4,6 @@ gem 'soap4r'
 require 'lib/pingdom'
 require 'thor/tasks'
 
-
-
 class Default < Thor
 	def initialize
 		creds = YAML.load_file("creds.yml")
@@ -20,7 +18,7 @@ class Default < Thor
 		res = @p.downtime_summary(options[:check], options[:from], options[:to])
 		puts ["FROM", "TO", "DURATION"].join("\t")
 		res.each do |r|
-			puts [r.from, r.to, r.duration].join("\t")
+			puts [r.from.strftime("%D"), r.to.strftime("%D"), r.duration].join("\t")
 		end
 	end
 
@@ -32,7 +30,7 @@ class Default < Thor
 		res = @p.responsetime_summary(options[:check], options[:from], options[:to])
 		puts ["FROM", "TO", "RESPONSE TIME"].join("\t")
 		res.each do |r|
-			puts [r.from, r.to, r.responseTime].join("\t")
+			puts [r.from.strftime("%D"), r.to.strftime("%D"), r.responseTime].join("\t")
 		end
 	end
 
@@ -44,7 +42,7 @@ class Default < Thor
 		res = @p.downtimes(options[:check], options[:from], options[:to])
 		puts ["FROM", "TO"].join("\t")
 		res.each do |r|
-			puts [r.from, r.to].join("\t")
+			puts [r.from.strftime("%D %T"), r.to.strftime("%D %T")].join("\t")
 		end
 	end
 
@@ -56,7 +54,7 @@ class Default < Thor
 		res = @p.raw_data(options[:check], options[:from], options[:to])
 		puts ["TIME", "STATE", "RESPONSE TIME", "LOCATION"].join("\t")
 		res.each do |r|
-			puts [r.checkTime, r.checkState, r.responseTime, r.location].join("\t")
+			puts [r.checkTime.strftime("%D %T"), r.checkState, r.responseTime, r.location].join("\t")
 		end
 	end
 
@@ -88,7 +86,7 @@ class Default < Thor
 		res = @p.current_states
 		puts ["CHECK", "STATE", "TIME"].join("\t")
 		res.each do |r|
-			puts [r.checkName, r.checkState, r.lastCheckTime].join("\t")
+			puts [r.checkName, r.checkState, r.lastCheckTime.strftime("%D %T")].join("\t")
 		end
 	end
 
@@ -100,7 +98,7 @@ class Default < Thor
 		res = @p.last_downtimes
 		puts ["CHECK", "LAST OUTAGE"].join("\t")
 		res.each do |r|
-			puts [r.checkName, r.lastDown].join("\t")
+			puts [r.checkName, r.lastDown.strftime("%D %T")].join("\t")
 		end
 	end
 end
