@@ -35,6 +35,31 @@ class Pingdom
     return result.downtimesArray
   end
 
+  def responsetime_summary(check, from, to, locs = nil)
+    from  =  date(from)
+    to    =  date(to)
+    locs ||= locations  # the Pingdom API docs say that nil == all locations,
+                        # but that doesn't actually seem to be true. not sure
+                        # whose fault that is, but whatever...
+
+    if (to-from) > 31
+      newfrom = from + 31
+      return responsetime_summary(check, from, newfrom).concat(responsetime_summary(check, newfrom, to))
+    end
+
+    request            = Report_GetResponseTimesRequest.new
+    request.checkName  = check
+    request.from       = from
+    request.to         = to
+    request.resolution = Report_ResolutionEnum::DAILY
+    request.locations  = locations if locations
+
+    result = @driver.report_getResponseTimes(@api_key, session, request)
+		check_result(result)
+
+    return result.responseTimesArray
+  end
+
   def downtimes(check, from, to, page=nil)
     from  =  date(from)
     to    =  date(to)
@@ -45,12 +70,12 @@ class Pingdom
       return downtimes(check, from, newfrom).concat(downtimes(check, newfrom, to))
     end
 
-    request = Report_GetOutagesRequest.new
-    request.checkName = check
-    request.from = from
-    request.to = to
+    request                = Report_GetOutagesRequest.new
+    request.checkName      = check
+    request.from           = from
+    request.to             = to
     request.resultsPerPage = 50
-    request.pageNumber = page
+    request.pageNumber     = page
 
     result = @driver.report_getOutages(@api_key, session, request)
     check_result(result)
@@ -59,6 +84,33 @@ class Pingdom
       return result.outagesArray.concat(downtimes(check, from, to, page+1))
     else
       return result.outagesArray
+    end
+  end
+
+  def raw_data(check, from, to, page=nil)
+    from  =  date(from)
+    to    =  date(to)
+    page ||= 1
+
+    if (to-from) > 31
+      newfrom = from + 31
+      return raw_data(check, from, newfrom).concat(raw_data(check, newfrom, to))
+    end
+
+    request                = Report_GetRawDataRequest.new
+    request.checkName      = check
+    request.from           = from
+    request.to             = to
+    request.resultsPerPage = 50
+    request.pageNumber     = page
+
+    result = @driver.report_getRawData(@api_key, session, request)
+    check_result(result)
+
+    if (result.rawDataArray.length > 49)
+      return result.rawDataArray.concat(raw_data(check, from, to, page+1))
+    else
+      return result.rawDataArray
     end
   end
 
@@ -74,6 +126,20 @@ class Pingdom
     check_result(result)
 
     return result.locationsArray
+  end
+
+  def current_states
+    result = @driver.report_getCurrentStates(@api_key, session)
+    check_result(result)
+
+    return result.currentStates
+  end
+
+  def last_downtimes
+    result = @driver.report_getLastDowns(@api_key, session)
+    check_result(result)
+
+    return result.lastDowns
   end
 
 	class PingdomException        < RuntimeError     ; end
