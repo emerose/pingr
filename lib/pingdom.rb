@@ -34,6 +34,11 @@ class Pingdom
     from = date(from)
     to   = date(to)
 
+    if (to-from) > 31
+      newfrom = from + 31
+      return downtimes(check, from, newfrom).concat(downtimes(check, newfrom, to))
+    end
+
     request            = Report_GetDowntimesRequest.new
     request.checkName  = check
     request.from       = from
