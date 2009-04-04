@@ -62,6 +62,20 @@ class Pingdom
     end
   end
 
+  def checks
+    result = @driver.check_getList(@api_key, session)
+    check_result(result)
+
+    return result.checkNames
+  end
+
+  def locations
+    result = @driver.location_getList(@api_key, session)
+    check_result(result)
+
+    return result.locationsArray
+  end
+
 	class PingdomException        < RuntimeError     ; end
 	class ArgumentException       < PingdomException ; end
 	class InternalErrorException  < PingdomException ; end
