@@ -31,6 +31,9 @@ class Pingdom
   end
 
   def downtimes(check, from, to)
+    from = date(from)
+    to   = date(to)
+
     request            = Report_GetDowntimesRequest.new
     request.checkName  = check
     request.from       = from
