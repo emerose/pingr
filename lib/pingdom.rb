@@ -30,13 +30,13 @@ class Pingdom
     return @session
   end
 
-  def downtimes(check, from, to)
+  def downtime_summary(check, from, to)
     from = date(from)
     to   = date(to)
 
     if (to-from) > 31
       newfrom = from + 31
-      return downtimes(check, from, newfrom).concat(downtimes(check, newfrom, to))
+      return downtime_summary(check, from, newfrom).concat(downtime_summary(check, newfrom, to))
     end
 
     request            = Report_GetDowntimesRequest.new
@@ -49,6 +49,33 @@ class Pingdom
 		check_result(result)
 
     return result.downtimesArray
+  end
+
+  def downtimes(check, from, to, page=nil)
+    from  =  date(from)
+    to    =  date(to)
+    page ||= 1
+
+    if (to-from) > 31
+      newfrom = from + 31
+      return downtimes(check, from, newfrom).concat(downtimes(check, newfrom, to))
+    end
+
+    request = Report_GetOutagesRequest.new
+    request.checkName = check
+    request.from = from
+    request.to = to
+    request.resultsPerPage = 50
+    request.pageNumber = page
+
+    result = @driver.report_getOutages(@api_key, session, request)
+    check_result(result)
+
+    if (result.outagesArray.length > 49)
+      return result.outagesArray.concat(downtimes(check, from, to, page+1))
+    else
+      return result.outagesArray
+    end
   end
 
 	class PingdomException        < RuntimeError     ; end
