@@ -14,22 +14,6 @@ class Pingdom
     @driver.wiredump_dev = STDERR
   end
 
-  def session
-    return @session if @session
-
-    # no session yet -- gotta log in
-    creds = Auth_CredentialsData.new
-    creds.username = @username
-    creds.password = @password
-
-    result = @driver.auth_login(@api_key, creds)
-		check_result(result)
-
-    # if we got this far, we logged in ok.
-    @session = result.sessionId
-    return @session
-  end
-
   def downtime_summary(check, from, to)
     from = date(from)
     to   = date(to)
@@ -84,6 +68,24 @@ class Pingdom
 	class IdentifcationException  < PingdomException ; end
 	class AuthorizationException  < PingdomException ; end
 	class AuthenticationException < PingdomException ; end
+
+  protected
+
+  def session
+    return @session if @session
+
+    # no session yet -- gotta log in
+    creds = Auth_CredentialsData.new
+    creds.username = @username
+    creds.password = @password
+
+    result = @driver.auth_login(@api_key, creds)
+		check_result(result)
+
+    # if we got this far, we logged in ok.
+    @session = result.sessionId
+    return @session
+  end
 
 	def check_result(result)
 		case result.status
