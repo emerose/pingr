@@ -10,8 +10,8 @@ CREDS = YAML.load_file("creds.yml")
 
 p = Pingdom.new(CREDS[:username], CREDS[:password], CREDS[:api_key])
 
-p.enable_debugging
+#p.enable_debugging
 
-p.downtimes("Accounts Index", DateTime.parse("01/01/2009"), DateTime.parse("01/02/2009")).each do |d|
-  puts d.inspect
+p.downtimes("Accounts Index", "01/01/2009", "04/25/2009").each do |d|
+  puts [d.from, d.to, d.duration].join("\t")
 end
