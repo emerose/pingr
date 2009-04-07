@@ -1,5 +1,6 @@
 $: << File.dirname(__FILE__)
 require 'PingdomAPIDriver'
+require 'datetime_ext'
 
 class Pingdom
   def initialize(username, password, api_key)
@@ -32,7 +33,7 @@ class Pingdom
     result = @driver.report_getDowntimes(@api_key, session, request)
 		check_result(result)
 
-    return result.downtimesArray
+    return result.downtimesArray.collect { |d| Pingdom::Downtime.new(d) }
   end
 
   def responsetime_summary(check, from, to, locs = nil)
@@ -57,17 +58,17 @@ class Pingdom
     result = @driver.report_getResponseTimes(@api_key, session, request)
 		check_result(result)
 
-    return result.responseTimesArray
+    return result.responseTimesArray.collect { |r| Pingdom::Responsetime.new(r) }
   end
 
-  def downtimes(check, from, to, page=nil)
+  def outages(check, from, to, page=nil)
     from  =  date(from)
     to    =  date(to)
     page ||= 1
 
     if (to-from) > 31
       newfrom = from + 31
-      return downtimes(check, from, newfrom).concat(downtimes(check, newfrom, to))
+      return outages(check, from, newfrom).concat(outages(check, newfrom, to))
     end
 
     request                = Report_GetOutagesRequest.new
@@ -81,9 +82,9 @@ class Pingdom
     check_result(result)
 
     if (result.outagesArray.length > 49)
-      return result.outagesArray.concat(downtimes(check, from, to, page+1))
+      return result.outagesArray.concat(outages(check, from, to, page+1))
     else
-      return result.outagesArray
+      return result.outagesArray.collect { |o| Pingdom::Outage.new(o) }
     end
   end
 
@@ -108,9 +109,9 @@ class Pingdom
     check_result(result)
 
     if (result.rawDataArray.length > 49)
-      return result.rawDataArray.concat(raw_data(check, from, to, page+1))
+      return result.rawDataArray.collect { |r| Pingdom::CheckResult.new(r) }.concat(raw_data(check, from, to, page+1))
     else
-      return result.rawDataArray
+      return result.rawDataArray.collect { |r| Pingdom::CheckResult.new(r) }
     end
   end
 
@@ -132,14 +133,14 @@ class Pingdom
     result = @driver.report_getCurrentStates(@api_key, session)
     check_result(result)
 
-    return result.currentStates
+    return result.currentStates.collect { |r| Pingdom::Status.new(r) }
   end
 
   def last_downtimes
     result = @driver.report_getLastDowns(@api_key, session)
     check_result(result)
 
-    return result.lastDowns
+    return result.lastDowns.collect { |r| Pingdom::LastOutage.new(r) }
   end
 
 	class PingdomException        < RuntimeError     ; end
@@ -188,4 +189,57 @@ class Pingdom
     else           raise  "Not sure how to turn #{obj} into a DateTime."
     end
 	end
+
+  class Downtime
+    def initialize(obj)
+      @from     = obj.from.to_time
+      @to       = obj.to.to_time
+      @duration = obj.duration
+    end
+    attr_reader :from, :to, :duration
+  end
+
+  class Responsetime
+    def initialize(obj)
+      @from          = obj.from.to_time
+      @to            = obj.to.to_time
+      @response_time = obj.responseTime
+    end
+    attr_reader :from, :to, :response_time
+  end
+
+  class Outage
+    def initialize(obj)
+      @from         = obj.from.to_time
+      @to           = obj.to.to_time
+    end
+    attr_reader :from, :to
+  end
+
+  class CheckResult
+    def initialize(obj)
+      @time          = obj.checkTime.to_time
+      @state         = obj.checkState
+      @response_time = obj.responseTime
+      @location      = obj.location
+    end
+    attr_reader :time, :state, :response_time, :location
+  end
+
+  class Status
+    def initialize(obj)
+      @name  = obj.checkName
+      @state = obj.checkState
+      @time  = obj.lastCheckTime.to_time
+    end
+    attr_reader :name, :state, :time
+  end
+
+  class LastOutage
+    def initialize(obj)
+      @name  = obj.checkName
+      @time  = obj.lastDown.to_time
+    end
+    attr_reader :name, :time
+  end
 end

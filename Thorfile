@@ -18,7 +18,7 @@ class Default < Thor
 		res = @p.downtime_summary(options[:check], options[:from], options[:to])
 		puts ["FROM", "TO", "DURATION"].join("\t")
 		res.each do |r|
-			puts [r.from.strftime("%D"), r.to.strftime("%D"), r.duration].join("\t")
+			puts [r.from, r.to, r.duration].join("\t")
 		end
 	end
 
@@ -30,19 +30,19 @@ class Default < Thor
 		res = @p.responsetime_summary(options[:check], options[:from], options[:to])
 		puts ["FROM", "TO", "RESPONSE TIME"].join("\t")
 		res.each do |r|
-			puts [r.from.strftime("%D"), r.to.strftime("%D"), r.responseTime].join("\t")
+			puts [r.from, r.to, r.response_time].join("\t")
 		end
 	end
 
-  desc "downtimes", "Listing of all outages"
+  desc "outages", "Listing of all outages"
   method_options :check => :required, :from => :required, :to => :required, :debug => :boolean
-	def downtimes
+	def outages
 		@p.enable_debugging if options[:debug]
 
-		res = @p.downtimes(options[:check], options[:from], options[:to])
-		puts ["FROM", "TO"].join("\t")
+		res = @p.outages(options[:check], options[:from], options[:to])
+		puts ["FROM", "TO", "DURATION"].join("\t")
 		res.each do |r|
-			puts [r.from.strftime("%D %T"), r.to.strftime("%D %T")].join("\t")
+			puts [r.from, r.to, r.to-r.from].join("\t")
 		end
 	end
 
@@ -54,7 +54,7 @@ class Default < Thor
 		res = @p.raw_data(options[:check], options[:from], options[:to])
 		puts ["TIME", "STATE", "RESPONSE TIME", "LOCATION"].join("\t")
 		res.each do |r|
-			puts [r.checkTime.strftime("%D %T"), r.checkState, r.responseTime, r.location].join("\t")
+			puts [r.time, r.state, r.response_time, r.location].join("\t")
 		end
 	end
 
@@ -86,7 +86,7 @@ class Default < Thor
 		res = @p.current_states
 		puts ["CHECK", "STATE", "TIME"].join("\t")
 		res.each do |r|
-			puts [r.checkName, r.checkState, r.lastCheckTime.strftime("%D %T")].join("\t")
+			puts [r.name, r.state, r.time].join("\t")
 		end
 	end
 
@@ -98,7 +98,8 @@ class Default < Thor
 		res = @p.last_downtimes
 		puts ["CHECK", "LAST OUTAGE"].join("\t")
 		res.each do |r|
-			puts [r.checkName, r.lastDown.strftime("%D %T")].join("\t")
+			puts [r.name, r.time].join("\t")
 		end
 	end
+
 end
