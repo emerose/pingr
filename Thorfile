@@ -18,7 +18,7 @@ class Default < Thor
 		res = @p.downtime_summary(options[:check], options[:from], options[:to])
 		puts ["FROM", "TO", "DURATION"].join("\t")
 		res.each do |r|
-			puts [r.from, r.to, r.duration].join("\t")
+			puts [format_time(r.from), format_time(r.to), r.duration].join("\t")
 		end
 	end
 
@@ -30,7 +30,7 @@ class Default < Thor
 		res = @p.responsetime_summary(options[:check], options[:from], options[:to])
 		puts ["FROM", "TO", "RESPONSE TIME"].join("\t")
 		res.each do |r|
-			puts [r.from, r.to, r.response_time].join("\t")
+			puts [format_time(r.from), format_time(r.to), r.response_time].join("\t")
 		end
 	end
 
@@ -42,7 +42,7 @@ class Default < Thor
 		res = @p.outages(options[:check], options[:from], options[:to])
 		puts ["FROM", "TO", "DURATION"].join("\t")
 		res.each do |r|
-			puts [r.from, r.to, r.to-r.from].join("\t")
+			puts [format_time(r.from), format_time(r.to), r.to-r.from].join("\t")
 		end
 	end
 
@@ -54,7 +54,7 @@ class Default < Thor
 		res = @p.raw_data(options[:check], options[:from], options[:to])
 		puts ["TIME", "STATE", "RESPONSE TIME", "LOCATION"].join("\t")
 		res.each do |r|
-			puts [r.time, r.state, r.response_time, r.location].join("\t")
+			puts [format_time(r.time), r.state, r.response_time, r.location].join("\t")
 		end
 	end
 
@@ -86,7 +86,7 @@ class Default < Thor
 		res = @p.current_states
 		puts ["CHECK", "STATE", "TIME"].join("\t")
 		res.each do |r|
-			puts [r.name, r.state, r.time].join("\t")
+			puts [r.name, r.state, format_time(r.time)].join("\t")
 		end
 	end
 
@@ -98,8 +98,11 @@ class Default < Thor
 		res = @p.last_downtimes
 		puts ["CHECK", "LAST OUTAGE"].join("\t")
 		res.each do |r|
-			puts [r.name, r.time].join("\t")
+			puts [r.name, format_time(r.time)].join("\t")
 		end
 	end
 
+  def format_time(t)
+    t.getlocal.strftime("%Y-%m-%d %H:%M:%S")
+  end
 end
