@@ -1,4 +1,6 @@
 $: << File.dirname(__FILE__)
+require 'rubygems'
+gem 'soap4r'
 require 'PingdomAPIDriver'
 require 'datetime_ext'
 
@@ -185,6 +187,7 @@ class Pingdom
     case obj
     when DateTime: return obj
     when String:   return DateTime.parse(obj)
+    when Time:     return DateTime.new(obj.year, obj.month, obj.day, obj.hour, obj.min, obj.sec + Rational(obj.usec, 10**6), Rational(obj.utc_offset, 60 * 60 * 24))
     when :now:     return DateTime.now
     else           raise  "Not sure how to turn #{obj} into a DateTime."
     end

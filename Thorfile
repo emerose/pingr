@@ -1,6 +1,4 @@
-require 'rubygems'
 require 'yaml'
-gem 'soap4r'
 require 'lib/pingdom'
 require 'thor/tasks'
 
