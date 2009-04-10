@@ -138,7 +138,7 @@ class Pingdom
     return result.currentStates.collect { |r| Pingdom::Status.new(r) }
   end
 
-  def last_downtimes
+  def last_outages
     result = @driver.report_getLastDowns(@api_key, session)
     check_result(result)
 

@@ -93,7 +93,7 @@ class Default < Thor
 	def last
 		@p.enable_debugging if options[:debug]
 
-		res = @p.last_downtimes
+		res = @p.last_outages
 		puts ["CHECK", "LAST OUTAGE"].join("\t")
 		res.each do |r|
 			puts [r.name, format_time(r.time)].join("\t")
