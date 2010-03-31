@@ -1,0 +1,21 @@
+Pingr is a Ruby library for accessing the Pingdom API.  It provides a thorfile so you can execute its actions from the command line.
+
+h2. Requirements
+
+Install the soap4r and thor gems.
+
+h2. Usage
+
+You will need to create a "creds.yml" file in the pingr directory.  It should look like:
+
+:username: someemail@example.com
+:password: YourPingdomPassword
+:api_key: 13c9a18ee27cafebabe4a72dead3beef
+
+Obviously replace your email/login, password, and Pingdom API keys appropriately.
+
+Use thor to call the various actions.  Try "thor -T" to see the available items from within the pingr directory.  For example:
+
+  thor pingr:checks
+
+to get a list of your Pingdom checks.

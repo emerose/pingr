@@ -1,9 +1,9 @@
 require 'yaml'
 require 'lib/pingdom'
-require 'thor/tasks'
 
-class Default < Thor
-	def initialize
+class Pingr < Thor
+	def initialize(args, options, config)
+	  super(args, options, config)
 		creds = YAML.load_file("creds.yml")
 		@p = Pingdom.new(creds[:username], creds[:password], creds[:api_key])
 	end
@@ -100,7 +100,9 @@ class Default < Thor
 		end
 	end
 
-  def format_time(t)
-    t.getlocal.strftime("%Y-%m-%d %H:%M:%S")
-  end
+  no_tasks {
+    def format_time(t)
+      t.getlocal.strftime("%Y-%m-%d %H:%M:%S")
+    end
+  }
 end
