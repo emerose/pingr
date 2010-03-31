@@ -8,14 +8,16 @@ h2. Usage
 
 You will need to create a "creds.yml" file in the pingr directory.  It should look like:
 
+<pre><code>
 :username: someemail@example.com
 :password: YourPingdomPassword
 :api_key: 13c9a18ee27cafebabe4a72dead3beef
+</code></pre>
 
 Obviously replace your email/login, password, and Pingdom API keys appropriately.
 
-Use thor to call the various actions.  Try "thor -T" to see the available items from within the pingr directory.  For example:
+Use thor to call the various actions.  Try <code>thor -T</code> to see the available items from within the pingr directory.  For example:
 
-  thor pingr:checks
+<code>thor pingr:checks</code>
 
 to get a list of your Pingdom checks.
