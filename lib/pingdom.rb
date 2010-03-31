@@ -38,7 +38,7 @@ class Pingdom
     return result.downtimesArray.collect { |d| Pingdom::Downtime.new(d) }
   end
 
-  def responsetime_summary(check, from, to, locs = nil)
+  def responsetime_summary(check, from, to, resolution = Report_ResolutionEnum::DAILY, locs = nil)
     from  =  date(from)
     to    =  date(to)
     locs ||= locations  # the Pingdom API docs say that nil == all locations,
@@ -47,14 +47,14 @@ class Pingdom
 
     if (to-from) > 31
       newfrom = from + 31
-      return responsetime_summary(check, from, newfrom).concat(responsetime_summary(check, newfrom, to))
+      return responsetime_summary(check, from, newfrom, resolution, locs).concat(responsetime_summary(check, newfrom, to, resolution, locs))
     end
 
     request            = Report_GetResponseTimesRequest.new
     request.checkName  = check
     request.from       = from
     request.to         = to
-    request.resolution = Report_ResolutionEnum::DAILY
+    request.resolution = resolution
     request.locations  = locations if locations
 
     result = @driver.report_getResponseTimes(@api_key, session, request)

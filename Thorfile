@@ -21,11 +21,17 @@ class Pingr < Thor
 	end
 
   desc "responsetimes", "Daily summary of response times"
-  method_options :check => :required, :from => :required, :to => :required, :debug => :boolean
+  method_options :check => :required, :from => :required, :to => :required, :resolution => 'daily', :debug => :boolean
 	def responsetimes
 		@p.enable_debugging if options[:debug]
 
-		res = @p.responsetime_summary(options[:check], options[:from], options[:to])
+    resolution = case options[:resolution]
+      when 'monthly' then Report_ResolutionEnum::MONTHLY
+      when 'weekly' then Report_ResolutionEnum::WEEKLY
+      else Report_ResolutionEnum::DAILY
+    end
+    
+		res = @p.responsetime_summary(options[:check], options[:from], options[:to], resolution)
 		puts ["FROM", "TO", "RESPONSE TIME"].join("\t")
 		res.each do |r|
 			puts [format_time(r.from), format_time(r.to), r.response_time].join("\t")
