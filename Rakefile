@@ -6,7 +6,7 @@ begin
     gemspec.description = "Pingr is a Ruby library for accessing the Pingdom API. It provides a thorfile so you can execute its actions from the command line."
     gemspec.email = "chris@cobaltedge.com"
     gemspec.homepage = "http://github.com/chris/pingr"
-    gemspec.authors = ["Chris Bailey"]
+    gemspec.authors = ["Chris Bailey", "Sam Quigley"]
   end
 rescue LoadError
   puts "Jeweler not available. Install it with: gem install jeweler"
